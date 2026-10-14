@@ -1,0 +1,58 @@
+frames:
+  fps: 2.0
+  max_side: 960
+  blur_threshold: 40.0
+sfm:
+  matcher: exhaustive
+  single_camera: true
+  max_features: 4096
+  min_registered_fraction: 0.6
+depth:
+  model: depth-anything/Depth-Anything-V2-Small-hf
+  min_sparse_points: 25
+  max_depth_m: 8.0
+occupancy:
+  voxel_size: 0.05
+  min_hits: 3
+  ray_stride: 8
+  surface_margin_m: 0.06
+changes:
+  min_cluster_voxels: 80
+  cluster_eps_voxels: 2.0
+  move_max_distance_m: 3.0
+  move_volume_ratio: 0.5
+semantics:
+  model: openai/clip-vit-base-patch32
+  min_crop_px: 48
+  vocabulary:
+  - a chair
+  - an office chair
+  - a table
+  - a desk
+  - a sofa
+  - a cushion
+  - a backpack
+  - a handbag
+  - a cardboard box
+  - a suitcase
+  - a laptop
+  - a monitor
+  - a keyboard
+  - a book
+  - a stack of books
+  - a lamp
+  - a plant in a pot
+  - a bin
+  - a mug
+  - a bottle
+  - a pair of shoes
+  - a jacket
+  - a blanket
+  - a pillow
+  - a television
+  - a bicycle
+  - a door
+  - a wall
+  - the floor
+  - a window
+  min_confidence_ratio: 2.0

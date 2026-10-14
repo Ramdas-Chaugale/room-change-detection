@@ -1,0 +1,8 @@
+output/
+videos/
+__pycache__/
+*.pyc
+.venv/
+*.db
+*.db-shm
+*.db-wal
