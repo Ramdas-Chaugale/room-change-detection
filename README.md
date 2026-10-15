@@ -66,6 +66,8 @@ Both sides need positive evidence from the other session. A voxel that was
 occupied in A and simply never observed in B produces nothing at all, because
 nothing can honestly be claimed about it.
 
+![how the three states resolve](docs/figures/occupancy_states.png)
+
 That is the whole argument. It makes the system conservative: it will miss real
 changes in parts of the room only one pass covered. That is the right failure
 for anything a robot is going to navigate with. Saying "a doorway is clear"
@@ -75,27 +77,41 @@ because nobody looked at it is worse than saying nothing.
 
 ## How it works
 
+```mermaid
+flowchart TD
+    A["video A, before"] --> F
+    B["video B, after"] --> F
+    F["1. frames<br/>sample, resize, drop blurry"] --> S
+
+    S["2. joint structure from motion<br/><b>both sessions in ONE COLMAP problem</b><br/>the unchanged room registers them"]
+    S --> P["camera poses in a shared frame<br/>+ sparse 3D points"]
+
+    P --> D["3. dense depth per frame<br/>Depth Anything V2,<br/>scale and shift fitted to the sparse points"]
+
+    D --> OA["4a. session A map<br/>occupied / free / unknown"]
+    D --> OB["4b. session B map<br/>occupied / free / unknown"]
+
+    OA --> C
+    OB --> C
+    C["5. change = intersection<br/>removed = occupied in A AND free in B<br/>added = occupied in B AND free in A"]
+
+    C --> K["cluster into objects<br/>DBSCAN on changed voxels"]
+    K --> M["6. label each cluster<br/>crop from the session that saw it,<br/>CLIP against a vocabulary"]
+    M --> MM["pair a removal with an addition<br/>only if label, size and distance agree"]
+
+    MM --> R1["scene.html<br/>interactive 3D"]
+    MM --> R2["report.md<br/>plain English"]
+    MM --> R3["changes.json"]
+
+    style S fill:#fff3cd,stroke:#d39e00,stroke-width:2px
+    style C fill:#fff3cd,stroke:#d39e00,stroke-width:2px
+    style R1 fill:#e8f5e9,stroke:#2ca02c
+    style R2 fill:#e8f5e9,stroke:#2ca02c
+    style R3 fill:#e8f5e9,stroke:#2ca02c
 ```
- two videos
-     |
- [1] frames          sample, resize, drop the blurry ones
-     |
- [2] joint SfM       one COLMAP problem over BOTH sessions
-     |               -> camera poses in one shared frame, sparse points
-     |
- [3] dense depth     Depth Anything V2 per frame,
-     |               scale and shift fitted to the sparse points
-     |
- [4] occupancy       back-project depth -> occupied voxels
-     |               ray-march to surfaces -> free voxels
-     |
- [5] change          set algebra, then cluster into objects
-     |
- [6] semantics       project clusters back into the frames that saw them,
-     |               crop, label with CLIP
-     |
- report + 3D scene
-```
+
+The two highlighted steps are the ones that matter. Everything else is
+plumbing.
 
 Monocular depth is dense but affine-invariant, so it has no idea of scale. The
 sparse COLMAP points are the fix: they are in the same frame from the same
@@ -140,7 +156,14 @@ python run.py --a videos/before.mp4 --b videos/after.mp4 \
 
 Ground truth for that scene: a chair moves about 2.5 m to the right, a box is
 removed, a bag is added, and a table stays put. All four are found, in the right
-places and at sensible volumes. Committed output from that run is in
+places and at sensible volumes.
+
+![where the changes are](docs/figures/topdown.png)
+
+![detected changes by volume](docs/figures/change_summary.png)
+
+The four real changes are the large bars. Everything under the median line is
+depth noise on flat walls, which is the honest cost of monocular depth. Committed output from that run is in
 [examples/](examples/), including the 3D scene.
 
 Two honest notes about it. Six smaller false positives also appear, from
@@ -229,6 +252,7 @@ src/changes.py                the set algebra, clustering, move matching
 src/semantics.py              CLIP labels from image crops
 src/report.py                 3D scene and written summary
 tools/make_synthetic_room.py  renders the test scene
+tools/make_figures.py         draws the figures above from a finished run
 docs/DESIGN.md                design choices and tradeoffs
 ```
 

@@ -44,6 +44,12 @@ positives from monocular depth error on flat textured walls, where the depth
 model has little to anchor on. They are the honest cost of using monocular depth
 rather than dense stereo.
 
+![where the changes are](../docs/figures/topdown.png)
+
+Seen from above, the detections land in different parts of the room rather than
+piling into one corner, which is what a result that is tracking real geometry
+looks like.
+
 ## Why every label says "unidentified object"
 
 Because the renderer draws cubes covered in coloured noise, and CLIP correctly

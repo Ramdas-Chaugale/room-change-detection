@@ -73,6 +73,8 @@ So each session is stored as an occupancy map with three states:
 | `FREE` | a camera ray passed through on its way to a surface, so the space was looked at and was empty |
 | `UNKNOWN` | neither, so no claim can be made |
 
+![the three states resolving into a claim](figures/occupancy_states.png)
+
 `FREE` is what makes the difference, and it is the expensive part. Building it
 means marching every sampled ray from the camera centre to just short of where
 it hit something, and marking what it passed through as empty. That is a lot of
@@ -89,6 +91,12 @@ every object carves itself away and solid things dissolve.
 Both need positive evidence from the other session. Something occupied in A and
 merely unobserved in B produces nothing at all. That single choice is the
 difference between reporting what changed and reporting where the camera went.
+
+![detected changes by volume](figures/change_summary.png)
+
+On the synthetic scene the four real changes come out as the four largest
+clusters. The tail below the median line is depth error on flat walls, not
+objects, and it is why `min_cluster_voxels` exists.
 
 It is deliberately conservative. The system will miss real changes in parts of
 the room that only one pass covered. I would rather under-report than hand a
