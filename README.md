@@ -237,6 +237,9 @@ Everything is in `config.yaml`, commented. The three that matter:
 
 More on all of this, and why each call was made, in [docs/DESIGN.md](docs/DESIGN.md).
 
+If you want the version that assumes no background at all, including what every
+tool does and why it was picked, read [docs/GUIDE.md](docs/GUIDE.md).
+
 ---
 
 ## Layout
