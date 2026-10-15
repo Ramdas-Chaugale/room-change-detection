@@ -169,6 +169,9 @@ python run.py --a videos/before.mp4 --b videos/after.mp4 --out output/
 
 ### Output
 
+Example inputs and the outputs they produced are committed in
+[examples/](examples/), so you can see both ends without running anything.
+
 | File | What it is |
 |---|---|
 | `output/scene.html` | interactive 3D. Grey is the unchanged room, red removed, green added, amber moved. Open in a browser and spin it |

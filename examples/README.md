@@ -12,6 +12,18 @@ python run.py --a videos/before.mp4 --b videos/after.mp4 \
 - `report.md` the written summary
 - `changes.json` every cluster with its geometry and labelling evidence
 
+## The input
+
+Three matching moments from each recording, before on the left, after on the
+right. The full videos are not committed because they are 10 MB each, but
+`tools/make_synthetic_room.py` regenerates them exactly, the seeds are fixed.
+
+![before and after](inputs/before_after.jpg)
+
+Individual frames are in `inputs/`. The textures are deliberately noisy: SIFT
+needs something to match on, and a cleanly shaded render would reconstruct
+badly for reasons that have nothing to do with the pipeline.
+
 ## Ground truth, and what was found
 
 The scene is scripted, so the answer is known.
