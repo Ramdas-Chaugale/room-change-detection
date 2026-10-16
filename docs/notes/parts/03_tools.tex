@@ -1,0 +1,131 @@
+\chapter{Every tool, and why}
+
+Each tool gets a plain explanation, then what it does in this project, then why it was chosen over
+the alternatives.
+
+\section{COLMAP, used through pycolmap}
+
+\begin{plainbox}
+\textbf{What it is.} Software that works out the three dimensional shape of a scene from ordinary
+two dimensional photographs, and where the camera was standing for each one. The technique is
+called \emph{structure from motion}. It is the same idea your eyes use: two slightly different
+views of the same thing let you judge depth.
+\end{plainbox}
+
+\begin{project}
+It takes every frame from both videos and returns two things. First, the position and angle of the
+camera for each frame. Second, a sparse cloud of three dimensional points marking corners and edges
+it managed to recognise in several frames at once.
+\end{project}
+
+\textbf{Why this one.} It is the standard tool for the job and it is free. The Python package
+\texttt{pycolmap} installs with pip, so there is no separate program to set up, which matters when
+somebody else has to run your work. A robotics team will recognise it immediately.
+
+\section{Depth Anything V2}
+
+\begin{plainbox}
+\textbf{What it is.} A neural network that looks at a single photograph and estimates how far away
+every pixel is. It was trained on an enormous number of images, so it has learned the cues that
+make things look near or far: perspective, relative size, and how objects overlap each other.
+\end{plainbox}
+
+\begin{project}
+COLMAP returns a few hundred accurate points per frame, which is nowhere near enough to say whether
+a chair is standing in a corner. This fills in a depth estimate for every single pixel.
+\end{project}
+
+\textbf{Why this one.} It runs on a laptop with no dedicated graphics card. The textbook
+alternative, dense multi-view stereo, is more accurate but effectively requires a powerful GPU,
+which would have made the project impossible to run or review on an ordinary machine.
+
+\begin{watch}
+Its output has no sense of scale. It knows the sofa is nearer than the wall; it does not know the
+sofa is two metres away. Section~4.3 explains how that is fixed, and it is one of the more
+interesting parts of the project.
+\end{watch}
+
+\section{CLIP}
+
+\begin{plainbox}
+\textbf{What it is.} A model trained on hundreds of millions of image and caption pairs. Give it a
+picture and a list of candidate descriptions, and it scores how well each description fits. It was
+never trained on a fixed list of objects, so the list can be changed without retraining anything.
+\end{plainbox}
+
+\begin{project}
+Once the geometry has found a lump of space that changed, CLIP is shown a cropped photograph of
+that space and picks the best match from a list of household objects, so the final report says
+``a chair'' instead of ``cluster 3''.
+\end{project}
+
+\textbf{Why this one.} The geometry has already decided \emph{where} the object is, so a full
+object detector is not needed, only a name. CLIP is small, runs on a laptop, and needs no training
+data.
+
+\section{DBSCAN, from scikit-learn}
+
+\begin{plainbox}
+\textbf{What it is.} An algorithm that finds groups in scattered data. Unlike most clustering
+methods, you do not tell it how many groups to expect. It finds however many there are, and labels
+loose scattered points as noise rather than forcing them into a group.
+\end{plainbox}
+
+\begin{project}
+After the comparison there are thousands of individual cells of space marked as changed. DBSCAN
+groups touching cells into objects, turning ``four thousand changed cells'' into ``a chair sized
+lump here and a box sized lump over there''.
+\end{project}
+
+\textbf{Why this one.} Not knowing the number of objects in advance is the entire point, which
+rules out anything that needs that number up front. Its willingness to discard scattered points as
+noise is exactly what is wanted, because measurement error produces scattered points.
+
+\section{OpenCV}
+
+\begin{plainbox}
+\textbf{What it is.} The standard library for working with images and video in code.
+\end{plainbox}
+
+\begin{project}
+Reads the videos, pulls out frames, resizes them, and measures how blurry each one is so the bad
+ones can be discarded. It also draws the synthetic test room described in Chapter~6.
+\end{project}
+
+\section{Plotly}
+
+\begin{plainbox}
+\textbf{What it is.} A charting library that produces interactive graphics which open in a web
+browser.
+\end{plainbox}
+
+\begin{project}
+Produces \texttt{scene.html}, the rotatable three dimensional model of the result.
+\end{project}
+
+\textbf{Why this one.} The output is a single file that opens in any browser. The usual
+alternative for 3D work, Open3D, opens a desktop window instead, which is no use to somebody
+reviewing the work from a link.
+
+\section{Matplotlib}
+
+\begin{plainbox}
+\textbf{What it is.} The standard Python library for charts.
+\end{plainbox}
+
+\begin{project}
+Draws the figures used in this document and in the project's README. They are generated from the
+real output of a real run rather than drawn by hand, so they cannot quietly drift away from what
+the code actually produces.
+\end{project}
+
+\section{NumPy}
+
+\begin{plainbox}
+\textbf{What it is.} The library that lets Python do arithmetic on millions of numbers quickly.
+\end{plainbox}
+
+\begin{project}
+Everything numerical. The free space calculation described in Section~4.4 handles tens of millions
+of points. In ordinary Python that would take hours. In NumPy it takes seconds.
+\end{project}

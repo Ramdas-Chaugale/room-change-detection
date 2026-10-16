@@ -1,7 +1,8 @@
 # Design choices and tradeoffs
 
 This assumes you can read code. For the same material explained from scratch,
-including a glossary and what each tool is, see [GUIDE.md](GUIDE.md).
+including a glossary and what each tool is, see the guide as a
+[PDF](notes/Room_Change_Detection_Guide.pdf) or as [Markdown](GUIDE.md).
 
 The brief asks for changes "in 3D", and for actual changes to be told apart from
 differences in camera viewpoint, occlusion and incomplete observation. Those two

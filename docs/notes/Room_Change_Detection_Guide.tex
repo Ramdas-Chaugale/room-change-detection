@@ -1,0 +1,143 @@
+%% =====================================================================
+%% What Changed in the Room, a guide to the project
+%% Ramdas Narayan Chaugale
+%%
+%% Build:  pdflatex main.tex   (run twice for the contents)
+%% Each part is its own file under parts/, so one can be edited alone.
+%% =====================================================================
+
+\documentclass[11pt,a4paper]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+
+\usepackage[top=22mm,bottom=22mm,left=25mm,right=25mm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usetikzlibrary{arrows.meta, positioning, fit, backgrounds, calc}
+
+\graphicspath{{../figures/}{../../examples/inputs/}}
+\setlist{nosep,leftmargin=*,topsep=5pt,partopsep=0pt}
+\captionsetup{font=small,labelfont=bf}
+\emergencystretch=3em
+
+\definecolor{boxblue}{RGB}{224,236,250}
+\definecolor{boxgrey}{RGB}{242,242,242}
+\definecolor{boxgreen}{RGB}{226,243,228}
+\definecolor{boxamber}{RGB}{253,243,220}
+\definecolor{linkblue}{RGB}{30,80,150}
+\definecolor{codebg}{RGB}{247,247,244}
+\definecolor{codekey}{RGB}{20,90,150}
+\definecolor{codecom}{RGB}{110,115,120}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  keywordstyle=\color{codekey}\bfseries,
+  commentstyle=\color{codecom}\itshape,
+  stringstyle=\color{codekey},
+  showstringspaces=false,
+  breaklines=true,
+  frame=leftline,
+  framerule=1.2pt,
+  rulecolor=\color{codekey!35},
+  xleftmargin=10pt,
+  framexleftmargin=8pt,
+  aboveskip=9pt,
+  belowskip=9pt,
+  language=Python,
+}
+
+% where this idea shows up in the project
+\newtcolorbox{project}[1][]{
+  colback=boxgreen, colframe=boxgreen!60!black, boxrule=0.4pt,
+  left=6pt, right=6pt, top=5pt, bottom=5pt,
+  title={\bfseries In this project}, fonttitle=\small, #1}
+
+% a plain definition
+\newtcolorbox{plainbox}[1][]{
+  colback=boxblue, colframe=boxblue!60!black, boxrule=0.4pt,
+  left=6pt, right=6pt, top=5pt, bottom=5pt, #1}
+
+% a warning or a common misunderstanding
+\newtcolorbox{watch}[1][]{
+  colback=boxamber, colframe=boxamber!60!black, boxrule=0.4pt,
+  left=6pt, right=6pt, top=5pt, bottom=5pt,
+  title={\bfseries Watch out}, fonttitle=\small, #1}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{16pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{24pt}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{2.6cm}
+{\Huge\bfseries What Changed in the Room?\par}
+\vspace{1.2cm}
+{\Large A guide to the project, assuming nothing\par}
+\vspace{2.2cm}
+{\large Ramdas Narayan Chaugale\par}
+\vspace{6pt}
+{\large MSc Artificial Intelligence\par}
+{\large Queen's University Belfast\par}
+\vspace{1.6cm}
+\begin{minipage}{0.84\textwidth}
+\small
+This project takes two phone videos of the same room, filmed at different times, and works out what
+moved, what appeared and what is gone, in three dimensions.
+
+\vspace{6pt}
+These notes are written so that someone with no technical background can follow what it does and
+why. Chapter 1 stands on its own. Each chapter after that assumes a little more, and every tool is
+explained in plain words before it is used.
+
+\vspace{8pt}
+\textbf{1} what it is, with no jargon at all.
+\textbf{2} why it exists, and why a robot would want it.
+\textbf{3} every tool, what it does here, and why it was chosen over the alternatives.
+\textbf{4} what actually happens, step by step.
+\textbf{5} the decisions that mattered.
+\textbf{6} the fake room used to check the answers.
+\textbf{7} a glossary.
+\textbf{8} the questions worth being ready for, including what went wrong.
+
+\vspace{8pt}
+The hard part of this problem is not spotting that something is different. It is being sure that an
+empty space means the object left, rather than that nobody looked there.
+\end{minipage}
+\vfill
+{\small \today}
+\end{titlepage}
+
+\tableofcontents
+
+\input{parts/01_what}
+\input{parts/02_why}
+\input{parts/03_tools}
+\input{parts/04_pipeline}
+\input{parts/05_decisions}
+\input{parts/06_testroom}
+\input{parts/07_glossary}
+\input{parts/08_questions}
+
+\end{document}

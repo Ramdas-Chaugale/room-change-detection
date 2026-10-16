@@ -1,0 +1,61 @@
+\chapter{Questions worth being ready for}
+
+\section{Why not just compare the two point clouds?}
+
+Because absence in a point cloud is ambiguous. It can mean the object left, or it can mean the
+camera never looked there. On real footage, where nobody walks the identical route twice, the
+second case accounts for most of the room. Tracking confirmed empty space separates the two.
+
+\section{Why one reconstruction instead of aligning two?}
+
+Aligning two models means solving for the transform that makes them agree, and that is least
+reliable exactly when part of the scene has moved, which is the only case this project cares
+about. Doing it jointly lets the unchanged scene do the aligning, which is the right way round.
+
+\section{How do you know it works?}
+
+A synthetic room with changes scripted in advance. All four are found, in the right places, at
+volumes consistent with the surface area of the objects. The figures in Chapter~5 are generated
+from that run by code reading the output file, not drawn by hand.
+
+\section{What are the weaknesses?}
+
+Four, stated plainly.
+
+\begin{itemize}
+  \item Monocular depth is the weakest link, and its errors are smooth and plausible, which is the
+        worst kind of error because nothing looks obviously wrong.
+  \item There is no true metric scale, so volumes and distances are consistent but not in real
+        metres.
+  \item Six false positives appear on the test scene, from depth error on flat walls.
+  \item The labelling has only been exercised on noise textured cubes, so it is untested on real
+        objects.
+\end{itemize}
+
+\section{What would you do next?}
+
+Real metric scale, from a known size marker in shot or from the phone's own motion tracking.
+Dense stereo where a GPU is available. Log-odds occupancy, as used in OctoMap, so confidence
+accumulates across frames instead of a hard threshold on how many times a cell was hit. An
+open-vocabulary detector so objects outside the configured list can still be named.
+
+\section{What did you get wrong along the way?}
+
+Three things, all caught by testing rather than by reading the code.
+
+\begin{enumerate}
+  \item \textbf{The depth limit was written in metres while the reconstruction used arbitrary
+        units.} The scene reconstructed at roughly twenty eight units deep, the limit was eight, so
+        every single measurement was discarded as too far away and nothing fused at all. Fixed by
+        rescaling the reconstruction once to room sized units.
+  \item \textbf{The first synthetic room had no walls.} Any surface with a single corner behind the
+        camera was being discarded whole, which removed the floor and every wall and left a black
+        void. Fixed by cutting the large surfaces into tiles so the test applies locally.
+  \item \textbf{The naming stage reported guesses as fact,} announcing that a television had moved
+        when the model was scoring at chance level. Fixed with a confidence floor.
+\end{enumerate}
+
+\begin{plainbox}
+All three were invisible from reading the code and obvious from running it against a known answer.
+That is the argument for building the synthetic test room before trusting anything.
+\end{plainbox}

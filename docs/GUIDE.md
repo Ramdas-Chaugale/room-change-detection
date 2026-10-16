@@ -1,5 +1,9 @@
 # Guide to this project
 
+Also available as a PDF with the figures in place:
+[Room_Change_Detection_Guide.pdf](notes/Room_Change_Detection_Guide.pdf).
+The LaTeX source is in [notes/](notes/).
+
 Written so that someone with no technical background can follow what this does
 and why, and so that I can pick it up again in six months and remember why
 every decision was made.

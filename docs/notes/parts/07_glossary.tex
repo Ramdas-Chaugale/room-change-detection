@@ -1,0 +1,25 @@
+\chapter{Glossary}
+
+\begin{center}
+\begin{tabular}{@{}p{0.30\textwidth}p{0.60\textwidth}@{}}
+\toprule
+\textbf{Term} & \textbf{What it means} \\
+\midrule
+Structure from motion & Working out three dimensional shape, and where the camera was, from a set of ordinary 2D photographs \\[4pt]
+Point cloud & A 3D shape stored as a lot of individual points floating in space \\[4pt]
+Sparse and dense & Sparse means a few hundred accurate points per frame. Dense means a depth value for every pixel \\[4pt]
+Voxel & A cube shaped cell of 3D space, the three dimensional equivalent of a pixel. Five centimetres across here \\[4pt]
+Occupancy map & A record of which cells of space contain something, are known to be empty, or were never seen \\[4pt]
+Ray casting & Tracing the straight line from the camera out through a pixel, to find what the camera looked through on the way \\[4pt]
+Occlusion & One object hiding another from the camera \\[4pt]
+Monocular depth & Estimating distance from a single image, rather than from two views \\[4pt]
+Affine-invariant depth & Depth that is correct in relative terms but has unknown scale and offset. It knows nearer and further, not how far \\[4pt]
+Zero-shot classification & Naming something using a model that was never specifically trained on that list of names \\[4pt]
+Clustering & Grouping scattered measurements into objects \\[4pt]
+SIFT keypoint & A distinctive small patch of an image that can be recognised again from a different angle or distance \\[4pt]
+Pose & Where the camera was and which way it was pointing \\[4pt]
+Least squares & A standard way of finding the line that best fits a set of measurements \\[4pt]
+Softmax & Turning a set of raw scores into numbers that behave like probabilities and add up to one \\
+\bottomrule
+\end{tabular}
+\end{center}

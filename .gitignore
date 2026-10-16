@@ -6,3 +6,10 @@ __pycache__/
 *.db
 *.db-shm
 *.db-wal
+
+# latex build files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz

@@ -1,0 +1,48 @@
+\chapter{The test room}
+
+\texttt{tools/make\_synthetic\_room.py} draws two videos of an imaginary room from a moving
+viewpoint. Between the two, one box moves across the room, one is taken away, one is added, and one
+stays exactly where it was.
+
+Because the answer is known in advance, the output can be marked rather than admired.
+
+\section{What the test found}
+
+\begin{center}
+\begin{tabular}{@{}p{0.30\textwidth}p{0.22\textwidth}p{0.40\textwidth}@{}}
+\toprule
+\textbf{Truth} & \textbf{Found} & \textbf{Evidence} \\
+\midrule
+chair moved left to right & yes & 0.28 m\textsuperscript{3} removed, 0.09 m\textsuperscript{3} added \\[4pt]
+box removed from the right & yes & 0.26 m\textsuperscript{3} removed, front right \\[4pt]
+bag added on the left & yes & 0.19 m\textsuperscript{3} added, front left \\[4pt]
+table unchanged & yes, correctly silent & not reported \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The volumes are sensible rather than arbitrary. A hollow cube of roughly 0.8 m\textsuperscript{3}
+has about 5 m\textsuperscript{2} of surface, and at a five centimetre cell size that is about
+0.25 m\textsuperscript{3} of occupied cells, which is what came back.
+
+Six smaller false positives also appear, the largest 0.37 m\textsuperscript{3}. They come from
+depth error on large flat walls, where the depth model has little to anchor on. They are the honest
+cost of using monocular depth rather than a depth sensor, and they are listed in the project's
+README rather than hidden.
+
+\section{Why the test room looks so strange}
+
+The room is covered in colourful noise rather than looking realistic, and that is deliberate.
+
+Reconstruction works by recognising the same distinctive patch of texture in several frames. A
+smooth, evenly coloured surface gives it nothing to grip on. A realistic looking render would
+reconstruct badly for reasons that have nothing to do with the system being tested, and the test
+would be measuring the renderer rather than the pipeline.
+
+\begin{watch}
+The honest limitation is that CLIP cannot name a cube covered in coloured noise, so every label on
+the synthetic run comes back as ``unidentified object''.
+
+The fake room tests the geometry. Only a real room can test the naming. Saying so plainly is
+better than quietly presenting synthetic labels as though they meant something.
+\end{watch}
