@@ -1,20 +1,43 @@
+<div align="center">
+
 # What Changed in the Room?
 
-Film a room. Move some things. Film it again. This tells you what moved, what
-appeared and what is gone, where it happened in 3D, and what the objects were.
+**Two phone videos of the same room, taken at different times. What moved, what
+appeared, what is gone, in three dimensions.**
+
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![COLMAP](https://img.shields.io/badge/COLMAP-pycolmap-2f6fb8)](https://colmap.github.io/)
+[![Depth Anything V2](https://img.shields.io/badge/Depth%20Anything-V2-1b6b4a)](https://depth-anything-v2.github.io/)
+[![CLIP](https://img.shields.io/badge/CLIP-zero--shot-9a7b3f)](https://openai.com/research/clip)
+[![Scored](https://img.shields.io/badge/scripted%20changes%20found-4%20of%204-1b6b4a)](#does-it-work)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 ```bash
 python run.py --a videos/before.mp4 --b videos/after.mp4 --out output/
 ```
 
-You get an interactive 3D view of the room with the changes picked out, a
-written summary, and a JSON file of the findings.
+An interactive 3D view with the changes picked out, a written summary, and a
+JSON file of the findings.
 
-> A chair moved. It was in the centre on the left side and is now towards the
-> back on the right side, about 2.4 m away.
->
-> A cardboard box was removed from the centre on the right side. It occupied
-> about 0.27 m3, and that space is now observed to be empty.
+</div>
+
+---
+
+## Contents
+
+[The real problem](#the-problem-is-not-detecting-difference-it-is-detecting-change) ·
+[How it works](#how-it-works) ·
+[Does it work?](#does-it-work) ·
+[What it refuses to say](#what-it-refuses-to-say) ·
+[Running it](#running-it) ·
+[What it does not do](#what-it-does-not-do) ·
+[Layout](#layout)
+
+![three matching moments from the two test recordings](examples/inputs/before_after.jpg)
+
+*Three matching moments from the two recordings used to test the system, before
+on the left and after on the right. It is a drawn test room rather than a real
+one, for reasons in [Does it work?](#does-it-work).*
 
 ---
 
@@ -131,6 +154,71 @@ addition.
 
 ---
 
+## Does it work?
+
+Tested against a scene where the answer is known in advance.
+`tools/make_synthetic_room.py` renders two videos of an imaginary room. Between
+them one object moves across the room, one is taken away, one is added, and one
+stays exactly where it was. Because the changes are scripted, the output can be
+marked rather than admired.
+
+![scorecard against the scripted changes](docs/figures/scorecard.png)
+
+**All four scripted changes were found, and the object that did not move was
+correctly left out.** Six smaller false positives also appear, caused by depth
+error on large flat walls where the depth model has little to anchor on. They
+are in the report rather than filtered out of it.
+
+The volumes are sensible rather than arbitrary. A hollow cube of roughly
+0.8 m³ has about 5 m² of surface, and at a five centimetre voxel that is around
+0.25 m³ of occupied cells, which is the order of what came back.
+
+<details>
+<summary><b>Why the test room looks so strange</b></summary>
+
+It is covered in colourful noise rather than looking realistic, and that is
+deliberate. Reconstruction works by recognising the same distinctive patch of
+texture in several frames, and a smooth evenly coloured surface gives SIFT
+nothing to grip. A photorealistic render would reconstruct badly for reasons
+that have nothing to do with the system being tested, and the test would be
+measuring the renderer.
+
+The honest limitation is the other side of that coin: CLIP cannot name a cube
+covered in coloured noise. The fake room tests the geometry. Only a real room
+can test the naming.
+
+</details>
+
+---
+
+## What it refuses to say
+
+This is the part worth reading.
+
+![every label scored at or below chance](docs/figures/confidence_floor.png)
+
+On the synthetic scene CLIP returned confident-sounding labels for every region:
+a television, a blanket, the floor. **Not one of those scores beat picking at
+random from the 30 candidate names.** The model was not choosing. It was
+shrugging, and the output was presenting the shrug as a finding.
+
+A confidence floor at twice chance fixed it. Anything below is reported as an
+unidentified object with its size and position, which is what the geometry
+actually supports.
+
+The report went from six invented findings to ten honest ones. That is a worse
+headline and a far more useful system, and it is the behaviour you want from
+anything a robot acts on.
+
+### What the output looks like
+
+| | |
+|---|---|
+| ![top down view](docs/figures/topdown.png) | ![change summary](docs/figures/change_summary.png) |
+| Top down, with each change sized by volume | Removals against additions |
+
+---
+
 ## Running it
 
 ### Install
@@ -140,49 +228,20 @@ pip install -r requirements.txt
 ```
 
 COLMAP comes in through `pycolmap`, so there is no separate binary to install.
-The depth and CLIP models download on first run, about 1 GB in total. It works
-on CPU. A GPU makes the depth stage faster but nothing requires one.
+The depth and CLIP models download on first run, about 1 GB in total.
 
 ### Try it without filming anything
 
-There is a synthetic room with scripted changes, so you can see it work before
-recording your own.
-
 ```bash
-python tools/make_synthetic_room.py --out videos/
+python tools/make_synthetic_room.py
 python run.py --a videos/before.mp4 --b videos/after.mp4 \
               --out output/ --config config_synthetic.yaml
 ```
 
-Ground truth for that scene: a chair moves about 2.5 m to the right, a box is
-removed, a bag is added, and a table stays put. All four are found, in the right
-places and at sensible volumes.
-
-![where the changes are](docs/figures/topdown.png)
-
-![detected changes by volume](docs/figures/change_summary.png)
-
-The four real changes are the large bars. Everything under the median line is
-depth noise on flat walls, which is the honest cost of monocular depth. Committed output from that run is in
-[examples/](examples/), including the 3D scene.
-
-Two honest notes about it. Six smaller false positives also appear, from
-monocular depth error on flat walls. And every label comes back as "unidentified
-object", because the synthetic objects are cubes covered in coloured noise and
-CLIP correctly has no idea what they are. The geometry is what the synthetic
-scene validates; the labelling needs a real room. [examples/README.md](examples/README.md)
-goes through it.
-
 ### Filming your own
 
-Two recordings of the same room, 20 to 60 seconds each.
-
-- **Walk a similar route both times.** The overlap between the two is what links
-  them, and it is also the only region where changes can be found.
-- **Move slowly.** Motion blur destroys feature matching more than anything else.
-- **Keep plenty of unchanged background in shot**, walls, floor, furniture that
-  is staying. That is what registers the two sessions.
-- **Change a few obvious things**, not everything. If most of the room moves
+- Walk a similar route both times, slowly, in good light.
+- Keep most of the room the same between visits. If everything moves at once
   there is nothing stable left to align against.
 - Avoid filming in the dark or at blank white walls. Texture is what SIFT needs.
 
@@ -247,18 +306,33 @@ tool does and why it was picked, read the guide:
 ## Layout
 
 ```
-run.py                        entry point
-config.yaml                   every setting, commented
-src/frames.py                 video to frames
-src/sfm.py                    joint reconstruction over both sessions
-src/depth.py                  monocular depth, fitted to the sparse points
-src/occupancy.py              occupied / free / unknown voxel maps
-src/changes.py                the set algebra, clustering, move matching
-src/semantics.py              CLIP labels from image crops
-src/report.py                 3D scene and written summary
-tools/make_synthetic_room.py  renders the test scene
-tools/make_figures.py         draws the figures above from a finished run
-docs/DESIGN.md                design choices and tradeoffs
+run.py                           entry point
+config.yaml                      every setting, commented
+src/frames.py                    video to frames
+src/sfm.py                       joint reconstruction over both sessions
+src/depth.py                     monocular depth, fitted to the sparse points
+src/occupancy.py                 occupied / free / unknown voxel maps
+src/changes.py                   the set algebra, clustering, move matching
+src/semantics.py                 CLIP labels, with the confidence floor
+src/report.py                    3D scene and written summary
+tools/make_synthetic_room.py     renders the scripted test scene
+tools/make_figures.py            scene figures from a finished run
+tools/make_readme_figures.py     the scorecard and confidence charts above
+docs/DESIGN.md                   design choices and tradeoffs
+docs/GUIDE.md                    the same material assuming no background
+docs/notes/                      LaTeX source for the guide PDF
 ```
 
-Built by [Ramdas Chaugale](https://github.com/Ramdas-Chaugale).
+The charts in this README are generated from `examples/changes.json`, the real
+output of the run, and from the scripted scene definitions. Rerun
+`python tools/make_readme_figures.py` and they change with the data.
+
+---
+
+<div align="center">
+
+Built by **[Ramdas Chaugale](https://github.com/Ramdas-Chaugale)**
+
+Licensed under the [MIT License](LICENSE)
+
+</div>
