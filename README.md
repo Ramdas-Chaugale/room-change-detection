@@ -219,6 +219,55 @@ anything a robot acts on.
 
 ---
 
+## Where the numbers come from
+
+Every figure and every number traces through the same chain. Nothing is typed
+into a chart by hand.
+
+```mermaid
+flowchart LR
+    T["tools/<br/>make_synthetic_room.py"] --> V[("videos/<br/>before.mp4<br/>after.mp4")]
+    V --> R["run.py<br/><i>src/sfm, depth,<br/>occupancy, changes,<br/>semantics</i>"]
+    R --> J[("output/changes.json<br/>report.md<br/>scene.html")]
+    J --> E[("examples/<br/>changes.json<br/>committed")]
+    E --> F["tools/<br/>make_readme_figures.py"]
+    F --> G["docs/figures/*.png"]
+    E --> N["notebooks/<br/>walkthrough.ipynb"]
+
+    classDef code fill:#e8f1fb,stroke:#2f6fb8,color:#1c2430
+    classDef data fill:#f3f0e8,stroke:#9a7b3f,color:#1c2430
+    classDef out fill:#e6f3ec,stroke:#1b6b4a,color:#1c2430
+    class T,R,F code
+    class V,J,E data
+    class G,N out
+```
+
+| Stage | File | What it produces |
+|---|---|---|
+| **Test scene** | `tools/make_synthetic_room.py` | Two videos with the changes scripted, so the answer is known before the run |
+| **Pipeline** | `run.py` over `src/` | `output/changes.json`, `report.md`, `scene.html` |
+| **Committed run** | `examples/changes.json` | A real run's output, in the repository |
+| **Charts** | `tools/make_readme_figures.py` | `docs/figures/*.png`, reading **only** that JSON |
+| **Narrative** | `notebooks/walkthrough.ipynb` | Imports from `src/`, reads the same JSON |
+
+### The walkthrough notebook
+
+**[`notebooks/walkthrough.ipynb`](notebooks/walkthrough.ipynb)** is the quickest
+way in. It is executed, so outputs and charts render on GitHub without cloning.
+
+The full pipeline needs COLMAP, a depth model and about a gigabyte of weights,
+so the notebook does not run it. Instead it demonstrates the idea the project
+rests on using the real functions on small arrays: it builds a chair, a shelf and
+an unobserved corner, shows the naive test reporting **two** things gone when
+only one is, then shows the free space test getting it right in one line. After
+that it loads the committed run and marks it.
+
+```bash
+python tools/build_walkthrough.py   # regenerates and re-executes it
+```
+
+---
+
 ## Running it
 
 ### Install
@@ -318,6 +367,8 @@ src/report.py                    3D scene and written summary
 tools/make_synthetic_room.py     renders the scripted test scene
 tools/make_figures.py            scene figures from a finished run
 tools/make_readme_figures.py     the scorecard and confidence charts above
+tools/build_walkthrough.py       regenerates and re-runs the notebook
+notebooks/walkthrough.ipynb      the narrative, executed
 docs/DESIGN.md                   design choices and tradeoffs
 docs/GUIDE.md                    the same material assuming no background
 docs/notes/                      LaTeX source for the guide PDF
